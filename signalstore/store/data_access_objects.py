@@ -7,6 +7,7 @@ import json
 import traceback
 from time import sleep
 import xarray as xr
+import pymongo
 
 from signalstore.store.store_errors import *
 
@@ -101,7 +102,15 @@ class MongoDAO(AbstractQueriableDataAccessObject):
         # add time_of_removal field to index
         index_field_tuples.append(('version_timestamp', 1))
         index_field_tuples.append(('time_of_removal', 1))
-        self._collection.create_index(index_field_tuples, unique=True) # create index
+        try:
+            self._collection.create_index(index_field_tuples, unique=True) # create index
+        except pymongo.errors.OperationFailure as e:
+            if "user is not allowed to do action" in str(e).lower():
+                # Skip index creation for users without write permissions
+                pass
+            else:
+                # Re-raise other operation failures that aren't permission related
+                raise
         self._set_argument_types(index_fields)
 
     def get(self, version_timestamp=0, **kwargs):
@@ -565,16 +574,10 @@ class FileSystemDAO(AbstractDataAccessObject):
         idkwargs = data_adapter.get_id_kwargs(data_object) # (schema_ref, data_name, version_timestamp)
         path = self.make_filepath(**idkwargs, data_adapter=data_adapter)
 
-        # hack to bypass current issue with exists function
-        try:
-            if self.exists(**idkwargs, data_adapter=data_adapter):
-                print(f'Skipping object with path "{path}" because it already exists in repository.')
-                return None
-                # raise FileSystemDAOFileAlreadyExistsError(
-                #     f'Cannot add object with path "{path}" because it already exists in repository.'
-                # )
-        except: 
-            pass
+        if self.exists(**idkwargs, data_adapter=data_adapter):
+            raise FileSystemDAOFileAlreadyExistsError(
+                f'Cannot add object with path "{path}" because it already exists in repository.'
+            )
         data_object = self._serialize(data_object)
         #get os environment variable 'DEBUG' to check if we should print the data_object
         data_adapter.write_file(path=path, data_object=data_object)
