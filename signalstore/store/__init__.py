@@ -1,6 +1,6 @@
-from signalstore.store.unit_of_work_provider import UnitOfWorkProvider
+from eegdash.SignalStore.signalstore.store.unit_of_work_provider import UnitOfWorkProvider
 
-from signalstore.store.datafile_adapters import (
+from eegdash.SignalStore.signalstore.store.datafile_adapters import (
     XarrayDataArrayNetCDFAdapter,
     XarrayDataArrayZarrAdapter
 )

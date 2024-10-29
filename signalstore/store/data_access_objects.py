@@ -9,9 +9,9 @@ from time import sleep
 import xarray as xr
 import pymongo
 
-from signalstore.store.store_errors import *
+from eegdash.SignalStore.signalstore.store.store_errors import *
 
-from signalstore.store.datafile_adapters import AbstractDataFileAdapter, XarrayDataArrayNetCDFAdapter
+from eegdash.SignalStore.signalstore.store.datafile_adapters import AbstractDataFileAdapter, XarrayDataArrayNetCDFAdapter
 from concurrent.futures import ThreadPoolExecutor
 
 class AbstractDataAccessObject(ABC):

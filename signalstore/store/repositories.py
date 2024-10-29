@@ -1,6 +1,6 @@
-from signalstore.store.data_access_objects import *
-from signalstore.store.store_errors import *
-from signalstore.utilities.tools.strings import contains_regex_characters
+from eegdash.SignalStore.signalstore.store.data_access_objects import *
+from eegdash.SignalStore.signalstore.store.store_errors import *
+from eegdash.SignalStore.signalstore.utilities.tools.strings import contains_regex_characters
 
 from abc import ABC, abstractmethod
 import jsonschema

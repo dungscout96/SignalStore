@@ -1,23 +1,23 @@
-from signalstore.store.data_access_objects import (
+from eegdash.SignalStore.signalstore.store.data_access_objects import (
     MongoDAO,
     FileSystemDAO,
     InMemoryObjectDAO,
 )
 
-from signalstore.store.repositories import (
+from eegdash.SignalStore.signalstore.store.repositories import (
     DomainModelRepository,
     DataRepository,
     InMemoryObjectRepository
 )
 
-from signalstore.store.datafile_adapters import (
+from eegdash.SignalStore.signalstore.store.datafile_adapters import (
     AbstractDataFileAdapter,
     XarrayDataArrayNetCDFAdapter,
     XarrayDataArrayZarrAdapter
 )
 
 
-from signalstore.store.unit_of_work import UnitOfWork
+from eegdash.SignalStore.signalstore.store.unit_of_work import UnitOfWork
 
 class UnitOfWorkProvider:
     def __init__(self, mongo_client, filesystem, memory_store, default_filetype='netcdf'):

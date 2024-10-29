@@ -1,7 +1,7 @@
 import os
 import importlib.util
 
-from signalstore.operations.handlers.base_handler import BaseHandler
+from eegdash.SignalStore.signalstore.operations.handlers.base_handler import BaseHandler
 
 class HandlerFactory:
     def __init__(self, uow_provider, base_path='signalstore.operations.handlers', base_dir='src/operations/handlers'):
