@@ -651,6 +651,32 @@ class DataRepository(AbstractQueriableRepository):
         self._operation_history.append(ohe)
         return ohe
 
+    def update_record(self, object, versioning_on=False):
+        """Mark a single record for deletion; remove it from the scope of get and list searches."""
+        schema_ref=object["schema_ref"]
+        data_name=object["data_name"]
+        self._check_args(
+            schema_ref=schema_ref,
+            data_name=data_name,
+        )
+        if not self._records.exists(schema_ref=schema_ref, data_name=data_name):
+            raise DataRepositoryNotFoundError(f"A record with schema_ref '{schema_ref}', data_name '{data_name}' does not exist in the repository.")
+        if versioning_on:
+            timestamp = self.timestamp()
+        else:
+            timestamp = 0
+        ohe = OperationHistoryEntry(
+            self.timestamp(),
+            self._records.collection_name,
+            "removed", schema_ref=schema_ref,
+            data_name=data_name,
+            version_timestamp=timestamp,
+        )
+
+        self._records.update(object, timestamp=ohe.timestamp, versioning_on=versioning_on)
+        self._operation_history.append(ohe)
+        return ohe
+    
     def remove(self, schema_ref, data_name, version_timestamp=0, data_adapter=None):
         """Mark a single record for deletion; remove it from the scope of get and list searches."""
         self._check_args(

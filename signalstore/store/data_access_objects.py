@@ -200,6 +200,36 @@ class MongoDAO(AbstractQueriableDataAccessObject):
         result = self._collection.insert_one(self._serialize(document))
         return None
 
+    def update(self, document, timestamp, versioning_on=False, **kwargs):
+        """Updates a document in the repository.
+        Arguments:
+            document {dict} -- The document to update.
+            timestamp {datetime.timestamp} -- The timestamp to update the document with.
+            **kwargs {dict} -- Only the index fields are allowed as keyword arguments.
+        Raises:
+            MongoDAODocumentNotFoundError -- If the document does not exist.
+        Returns:
+            None
+        """
+        self._check_args(document=document, timestamp=timestamp)
+        # get the index fields from the document
+        if document.get('version_timestamp') is None or document.get('version_timestamp') == 0:
+            if versioning_on:
+                document['version_timestamp'] = timestamp
+            else:
+                document['version_timestamp'] = 0
+        document_index_args = {key: value for key, value in document.items() if key in self._index_args}
+        if not self.exists(**document_index_args):
+            raise MongoDAODocumentAlreadyExistsError(
+                f'Cannot update a document not existing in repository.'
+            )
+        document = document.copy()
+        document['time_of_save'] = timestamp
+        result = self._collection.update_one({'schema_ref': document['schema_ref'], 'data_name': document['data_name']}, 
+                                             {'$set': self._serialize(document)}
+                                            )
+        return None
+        
     def mark_for_deletion(self, timestamp, version_timestamp=0, **kwargs):
         """Marks a document for deletion.
         Arguments:
